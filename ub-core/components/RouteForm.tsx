@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Route } from '@/types';
 import CodeEditor from './CodeEditor';
-import pb from '@/lib/pocketbase';
 import { RecordModel } from 'pocketbase';
 
 const httpMethods = ['GET', 'POST', 'PUT', 'DELETE'];
@@ -24,7 +23,13 @@ export default function RouteForm({ initialData }: { initialData?: Route }) {
 
   const fetchServices = async () => {
     try {
-      const records = await pb.collection('services').getFullList({ sort: 'name', requestKey: null, });
+      const resp = await fetch(`/api/db/services/get`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({sort: 'name'})
+      })
+      const records = await resp.json()
+      // pb.collection('services').getFullList({ sort: 'name', requestKey: null, });
       setAllServices(records);
     } catch (err) {
       console.error('Failed to fetch users', err);
@@ -47,9 +52,17 @@ export default function RouteForm({ initialData }: { initialData?: Route }) {
 
     try {
       if (initialData?.id) {
-        await pb.collection('routes').update(initialData.id, payload);
+        await fetch(`/api/db/routes/update/${initialData.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
       } else {
-        await pb.collection('routes').create(payload);
+        await fetch(`/api/db/routes/create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
       }
 
       router.push('/routes');

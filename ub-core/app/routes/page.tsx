@@ -1,14 +1,33 @@
 // app/routes/page.tsx
-import pb from '@/lib/pocketbase';
+'use client';
+
 import Link from 'next/link';
-import { Route } from '@/types';
 import DeleteRouteButton from '@/components/DeleteRouteButton';
+import { useEffect, useState } from 'react';
 
 
-export default async function RoutesPage() {
-  const records = await pb.collection('routes').getFullList<Route>({
-    sort: '-created',
-  });
+export default function RoutesPage() {
+
+  const [records, setRecords] = useState<Array<any>>([])
+  useEffect(() => {
+    const getRecords = async function() {
+      try {
+        const resp = await fetch(`/api/db/routes/get`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        })
+        const r = await resp.json()
+        setRecords(r)
+        // records = await pb.collection('routes').getFullList<Procedure>({
+        //   sort: '-created',
+        // });
+      } catch(e) {
+        console.log(e)
+      }
+    }
+    getRecords()
+  })
 
   return (
     <div className="w-full px-4 py-10">

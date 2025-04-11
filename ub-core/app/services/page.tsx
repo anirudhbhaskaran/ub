@@ -1,14 +1,33 @@
 // app/services/page.tsx
-import pb from '@/lib/pocketbase';
+'use client';
+
 import Link from 'next/link';
-import { Service } from '@/types';
 import DeleteServiceButton from '@/components/DeleteServiceButton';
+import { useEffect, useState } from 'react';
 
 
-export default async function ServicesPage() {
-  const records = await pb.collection('services').getFullList<Service>({
-    sort: '-created',
-  });
+export default function ServicesPage() {
+
+  const [records, setRecords] = useState<Array<any>>([])
+  useEffect(() => {
+    const getRecords = async function() {
+      try {
+        const resp = await fetch(`/api/db/services/get`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        })
+        const r = await resp.json()
+        setRecords(r)
+        // records = await pb.collection('services').getFullList<Procedure>({
+        //   sort: '-created',
+        // });
+      } catch(e) {
+        console.log(e)
+      }
+    }
+    getRecords()
+  })
 
   return (
     <div className="w-full px-4 py-10">

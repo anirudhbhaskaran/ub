@@ -1,12 +1,31 @@
-import DeleteProcedureButton from '@/components/DeleteProcedureButton';
-import pb from '@/lib/pocketbase';
-import { Procedure } from '@/types';
-import Link from 'next/link';
+'use client';
 
-export default async function ProceduresPage() {
-  const records = await pb.collection('procedures').getFullList<Procedure>({
-    sort: '-created',
-  });
+import DeleteProcedureButton from '@/components/DeleteProcedureButton';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+export default function ProceduresPage() {
+
+  const [records, setRecords] = useState<Array<any>>([])
+  useEffect(() => {
+    const getRecords = async function() {
+      try {
+        const resp = await fetch(`/api/db/procedures/get`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        })
+        const r = await resp.json()
+        setRecords(r)
+        // records = await pb.collection('procedures').getFullList<Procedure>({
+        //   sort: '-created',
+        // });
+      } catch(e) {
+        console.log(e)
+      }
+    }
+    getRecords()
+  })
   
   return (
     <div className="p-6">

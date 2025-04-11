@@ -5,6 +5,7 @@ networks:
     external: false
 
 include:
-  - ./nginx/compose.yaml
-  - ./kong/compose.yaml
+  # - ./nginx/compose.yaml
+  # - ./kong/compose.yaml
   - ./pocketbase/compose.yaml
+  - ./ub-core/compose.yaml

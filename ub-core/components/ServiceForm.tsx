@@ -3,10 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Service } from '@/types';
-import CodeEditor from './CodeEditor';
-import pb from '@/lib/pocketbase';
-
-const httpMethods = ['GET', 'POST', 'PUT', 'DELETE'];
 
 export default function ServiceForm({ initialData }: { initialData?: Service }) {
   const [name, setName] = useState(initialData?.name || '');
@@ -31,9 +27,17 @@ export default function ServiceForm({ initialData }: { initialData?: Service }) 
 
     try {
       if (initialData?.id) {
-        await pb.collection('services').update(initialData.id, payload);
+        await fetch(`/api/db/services/update/${initialData.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
       } else {
-        await pb.collection('services').create(payload);
+        await fetch(`/api/db/services/create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
       }
 
       router.push('/services');

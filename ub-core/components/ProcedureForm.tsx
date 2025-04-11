@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import CodeEditor from './CodeEditor';
 import { Procedure } from '@/types';
-import pb from '@/lib/pocketbase';
 import { useRouter } from 'next/navigation';
 
 export default function ProcedureForm({ initialData }: {
@@ -30,9 +29,17 @@ export default function ProcedureForm({ initialData }: {
 
     try {
       if (initialData?.id) {
-        await pb.collection('procedures').update(initialData.id, payload);
+        await fetch(`/api/db/procedures/update/${initialData.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
       } else {
-        await pb.collection('procedures').create(payload);
+        await fetch(`/api/db/procedures/create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
       }
 
       router.push('/procedures');
