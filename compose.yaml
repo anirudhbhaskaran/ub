@@ -7,3 +7,4 @@ networks:
 include:
   - ./nginx/compose.yaml
   - ./kong/compose.yaml
+  - ./pocketbase/compose.yaml

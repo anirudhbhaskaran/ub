@@ -42,3 +42,6 @@ next-env.d.ts
 
 # kong
 kong_data/
+
+# pocketbase
+pb_data/

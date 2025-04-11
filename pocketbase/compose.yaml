@@ -9,12 +9,13 @@ services:
     image: alpine
     working_dir: /app
     volumes:
-      - ./pocketbase/pb_data:/app/pb_data
+      - ./pb_data:/app/pb_data
     entrypoint: ["/bin/sh", "-c"]
     command: |
       "wget https://github.com/pocketbase/pocketbase/releases/download/v0.21.2/pocketbase_0.21.2_linux_amd64.zip -O pb.zip && \
       unzip pb.zip && \
       chmod +x pocketbase && \
+      ./pocketbase admin create test@example.com 1234567890 && \
       ./pocketbase serve --http=0.0.0.0:8090"
     ports:
       - "8090:8090"
