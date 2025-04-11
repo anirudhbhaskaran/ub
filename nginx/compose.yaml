@@ -1,0 +1,15 @@
+name: nginx_apiserver
+
+services:
+  apiserver:
+    build: .
+    volumes:
+      - type: bind
+        source: ./default-config.conf
+        target: /etc/nginx/conf.d/default.conf
+        read_only: true
+    ports:
+      - 80:8080
+    restart: on-failure
+    networks:
+      main-net

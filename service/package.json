@@ -1,0 +1,17 @@
+{
+  "name": "service-controller",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "isolated-vm": "^5.0.4",
+    "pocketbase": "^0.25.2",
+    "ultimate-express": "^1.4.4"
+  }
+}

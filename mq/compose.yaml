@@ -1,0 +1,16 @@
+name: rabbitmq_mq
+
+services:
+  mq:
+    image: rabbitmq:alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    restart: on-failure
+    networks:
+      - main-net
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 5
