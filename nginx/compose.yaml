@@ -1,8 +1,8 @@
 name: nginx_apiserver
 
-networks:
-  main-net:
-    external: false
+# networks:
+#   main-net:
+#     external: false
 
 services:
   apiserver:

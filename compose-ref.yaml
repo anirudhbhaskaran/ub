@@ -1,8 +1,4 @@
-name: kong_api_gateway
-
-# networks:
-#   main-net:
-#     external: false
+name: unified_backend
 
 volumes:
   kong_prefix_vol:
@@ -15,6 +11,16 @@ volumes:
       device: tmpfs
 
 services:
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - kong
+    restart: on-failure
+
   kong_migrations:
     image: kong:latest
     command: kong migrations bootstrap
@@ -48,8 +54,6 @@ services:
   kong:
     image: kong:latest
     user: kong
-    depends_on:
-      - db
     environment:
       KONG_DATABASE: postgres
       KONG_PG_DATABASE: kong
@@ -101,4 +105,66 @@ services:
       timeout: 30s
       retries: 3
     volumes:
-      - C:\Personal\Colana\RnD\ub\kong\kong_data:/var/lib/postgresql/data
+      - /home/anirudh/kong_data:/var/lib/postgresql/data
+
+  pocketbase:
+    image: alpine
+    working_dir: /app
+    volumes:
+      - ./pocketbase/pb_data:/app/pb_data
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      "wget https://github.com/pocketbase/pocketbase/releases/download/v0.21.2/pocketbase_0.21.2_linux_amd64.zip -O pb.zip && \
+      unzip pb.zip && \
+      chmod +x pocketbase && \
+      ./pocketbase serve --http=0.0.0.0:8090"
+    ports:
+      - "8090:8090"
+
+  rabbitmq:
+    image: rabbitmq:alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  service-runner:
+    build: ./service-runner
+    environment:
+      - POCKETBASE_URL=http://pocketbase:8090
+    ports:
+      - "5000:5000"
+    depends_on:
+      - pocketbase
+
+  stream-router:
+    build: ./stream-router
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq
+    depends_on:
+      - rabbitmq
+
+  stream-dealer:
+    build: ./stream-dealer
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq
+      - POCKETBASE_URL=http://pocketbase:8090
+    depends_on:
+      - rabbitmq
+      - pocketbase
+
+  ub-core:
+    build: ./ub-core
+    ports:
+      - "3000:3000"
+    environment:
+      - POCKETBASE_URL=http://pocketbase:8090
+    depends_on:
+      - pocketbase
